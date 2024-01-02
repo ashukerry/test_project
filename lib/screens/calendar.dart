@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:test_project/model/app_models.dart';
+import 'package:test_project/providers/calendar_privider.dart';
 import 'package:test_project/utils/colors.dart';
 import 'package:test_project/utils/widgets.dart';
 import 'dart:math' as math;
+import 'package:intl/intl.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
@@ -12,8 +15,13 @@ class CalendarScreen extends StatefulWidget {
 }
 
 class _CalendarScreenState extends State<CalendarScreen> {
+  late CalendarProvider calendarProvider;
+
   @override
   Widget build(BuildContext context) {
+    calendarProvider = context.watch<CalendarProvider>();
+    calendarProvider.generateMonthDays();
+
     return Scaffold(
       body: SafeArea(
         child: Container(
@@ -22,7 +30,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           color: AppColor.secondaryWhite_1,
           child: SingleChildScrollView(
             child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 30),
+              padding: const EdgeInsets.symmetric(vertical: 30),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -31,7 +39,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     child: CustomAppBar(
                       leading: GestureDetector(
                         onTap: () {
-                          Navigator.of(context).pop();
+                          // print(formattedDaysOfWeek);
+                          // Navigator.of(context).pop();
                         },
                         child: Container(
                           height: 50,
@@ -43,7 +52,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                 width: 1.0,
                               ),
                               borderRadius: BorderRadius.circular(5)),
-                          child: Center(
+                          child: const Center(
                               child: Icon(
                             Icons.arrow_back,
                             color: AppColor.primaryTextColor,
@@ -56,48 +65,81 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 30,
                   ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         SizedBox(
-                          child: Row(
-                            children: [
-                              Icon(Icons.arrow_back),
-                              Text("Mar"),
-                            ],
+                          child: GestureDetector(
+                            onTap: () {
+                              calendarProvider.goToPreviousMonth();
+                              setState(() {});
+                            },
+                            child: Row(
+                              children: [
+                                const Icon(Icons.arrow_back),
+                                const SizedBox(
+                                  width: 5,
+                                ),
+                                Text(
+                                  DateFormat.MMM().format(
+                                    DateTime(
+                                        calendarProvider.selectedDate.year,
+                                        calendarProvider.selectedDate.month -
+                                            1),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                         Text(
-                          "April",
-                          style: TextStyle(
+                          DateFormat.MMMM()
+                              .format(calendarProvider.selectedDate),
+                          style: const TextStyle(
                               color: AppColor.primaryTextColor,
                               fontSize: 20,
                               fontWeight: FontWeight.w800),
                         ),
                         SizedBox(
-                          child: Row(
-                            children: [Text("May"), Icon(Icons.arrow_forward)],
+                          child: GestureDetector(
+                            onTap: () {
+                              calendarProvider.goToNextMonth();
+                              setState(() {});
+                            },
+                            child: Row(
+                              children: [
+                                Text(DateFormat.MMM().format(DateTime(
+                                    calendarProvider.selectedDate.year,
+                                    calendarProvider.selectedDate.month + 1))),
+                                const SizedBox(
+                                  width: 5,
+                                ),
+                                const Icon(Icons.arrow_forward)
+                              ],
+                            ),
                           ),
                         )
                       ],
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 30,
                   ),
                   SizedBox(
                     width: double.infinity,
-                    child: Center(child: DateListBuilder(datedata: datedata)),
+                    child: Center(
+                        child: DateListBuilder(
+                            datedata: calendarProvider.daysAndDates)),
                     height: 80,
                   ),
-                  Padding(
-                    padding:
-                        const EdgeInsets.only(left: 16, top: 20, bottom: 10),
+                  const Padding(
+                    padding: EdgeInsets.only(left: 16, top: 20, bottom: 10),
                     child: Text(
                       "Ongoing",
                       style: TextStyle(
@@ -134,13 +176,13 @@ class DateListBuilder extends StatelessWidget {
     return Center(
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: datedata.length,
+        itemCount: datedata.length, // Limit to four items
         padding: EdgeInsets.zero,
         shrinkWrap: true, // Ensure horizontal scrolling only
 
         itemBuilder: (context, index) {
           return Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             child: DateContainer(
               text1: datedata[index].text1,
               text2: datedata[index].text2,
@@ -175,12 +217,12 @@ class AppointMentListBuilder extends StatelessWidget {
           return appiontmentList[index].endTime == ""
               ? Container(
                   child: Padding(
-                    padding: EdgeInsets.only(left: 16),
+                    padding: const EdgeInsets.only(left: 16),
                     child: Row(
                       children: [
                         Text(appiontmentList[index].startTime),
                         Padding(
-                          padding: EdgeInsets.only(left: 5),
+                          padding: const EdgeInsets.only(left: 5),
                           child: Row(
                             children: [
                               Container(
@@ -205,7 +247,7 @@ class AppointMentListBuilder extends StatelessWidget {
                               ),
                               Container(
                                 height: 3,
-                                width: MediaQuery.of(context).size.width >=
+                                width: MediaQuery.of(context).size.width <=
                                         392.72
                                     ? MediaQuery.of(context).size.width * 0.77
                                     : MediaQuery.of(context).size.width * 0.8,

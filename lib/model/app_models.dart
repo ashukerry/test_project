@@ -101,6 +101,16 @@ final List<DateModel> datedata = [
       text2: "Sat",
       textColor: AppColor.primaryBackgroundColor_1,
       containerColor: AppColor.white),
+  const DateModel(
+      text1: "17",
+      text2: "Mon",
+      textColor: AppColor.primaryBackgroundColor_1,
+      containerColor: AppColor.white),
+  const DateModel(
+      text1: "18",
+      text2: "Tues",
+      textColor: AppColor.primaryBackgroundColor_1,
+      containerColor: AppColor.white),
 ];
 
 class AppointmentModel {
